@@ -13,7 +13,6 @@ This project implements a basic lane assist system using computer vision techniq
 - Python
 - OpenCV
 - NumPy
-- Matplotlib
 
 ## Demo
 The project processes driving footage and overlays detected lane boundaries in real time.
