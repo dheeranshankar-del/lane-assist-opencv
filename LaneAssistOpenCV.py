@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import time
 
+#converts the lane equation like slope and intercept into two endpoints
 def make_coordinates(image, line_parameters):
     slope, intercept = line_parameters
     y1= image.shape[0]
@@ -10,7 +11,7 @@ def make_coordinates(image, line_parameters):
     x2= int((y2 - intercept)/slope)
     return np.array([x1, y1, x2, y2])
 
-
+#Creates a smooth left and right lane line from multiple line segments
 def average_slope_intercept (image, lines):
     left_fit=[]
     right_fit=[]
@@ -29,6 +30,7 @@ def average_slope_intercept (image, lines):
     right_line = make_coordinates(image, right_fit_average)
     return np.array([left_line, right_line])
 
+#Converts image to grayscale and reduces noise with gaussian blur adn detects edges with Canny
 def canny(image):
     gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
     #add gaussian blur
@@ -36,7 +38,8 @@ def canny(image):
     #identify the edges
     canny=cv2.Canny(blur, 50, 150)
     return canny
-
+    
+#Draws the detected lane lines into a blank image to put on the video frame
 def display_lines(image, lines):
     line_image = np.zeros_like(image)
     if lines is not None:
@@ -45,6 +48,7 @@ def display_lines(image, lines):
             cv2.line(line_image, (x1,y1), (x2,y2), (255,0,0), 10)
     return line_image
 
+#function ignores everything except where the road is likely to be
 def region_of_interest(image):
     #setting points in a triangle shape of area of interest
     height = image.shape[0] #gets image height #shape[1] gets image width but you don't need it here
@@ -55,6 +59,7 @@ def region_of_interest(image):
     masked_image= cv2.bitwise_and(image, mask)
     return masked_image
 
+#measures program FPS
 frame_count = 0
 fps_list = []
 
@@ -62,7 +67,7 @@ prev_time = time.time()
 
 FRAME_DELAY_MS =0
 
-
+#opens the input video file
 cap = cv2.VideoCapture(r"C:\Users\dheer\Downloads\vs code\Lane Assist\test2.mp4")
 frame_count = 0
 
@@ -71,7 +76,8 @@ while cap.isOpened():
 
     if not ret:
         break
-
+        
+#Processes each video frame through the lane detection pipeline and displays the result
     canny_image = canny(frame)
     cropped_image = region_of_interest(canny_image)
     lines = cv2.HoughLinesP(cropped_image, 2, np.pi/180, 100, np.array([]), minLineLength=40, maxLineGap=5)
