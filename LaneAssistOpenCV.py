@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
 import time
 
 def make_coordinates(image, line_parameters):
